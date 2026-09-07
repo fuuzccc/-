@@ -105,6 +105,12 @@ function registerIpc() {
     if (r.canceled || !r.filePaths || !r.filePaths.length) return { ok: false, canceled: true };
     try {
       const raw = JSON.parse(fs.readFileSync(r.filePaths[0], 'utf8'));
+      const handled = Object.assign(
+        readData('tasks').slice(),
+        raw.tasks || []
+      );
+      const gh = Object.assign(readData('goals').slice(), raw.goals || []);
+      // 备份里带的数组整体合并（按顺序追加不同 id 的项）
       const tasks = mergeUnique(readData('tasks'), raw.tasks || []);
       const goals = mergeUnique(readData('goals'), raw.goals || []);
       const notes = mergeUnique(readData('notes'), raw.notes || []);
@@ -141,6 +147,7 @@ function todayStr() {
 }
 function localTimeOf(task) {
   if (!task || !task.date) return null;
+  // task.time 形如 "HH:MM"；注意：当用户只填日期不报提醒时间时用 23:59
   const hm = (task.time || '').split(':');
   const hour = hm.length >= 2 ? parseInt(hm[0], 10) : 23;
   const minute = hm.length >= 2 ? parseInt(hm[1], 10) : 59;
@@ -159,6 +166,7 @@ function checkReminders() {
     if (!at) return;
     const remindAt = at.getTime() - offset;
     const key = t.id + '@' + at.getTime() + '@' + offset;
+    // 到提醒时刻（且未过正式时间太多），弹出一次
     if (now >= remindAt && now < at.getTime() + 5 * 60000 && !notifiedKeys.has(key)) {
       notifiedKeys.add(key);
       if (!Notification.isSupported()) return;
@@ -170,6 +178,7 @@ function checkReminders() {
       n.show();
     }
   });
+  // 清理过于久远的 key
   if (notifiedKeys.size > 500) notifiedKeys.clear();
 }
 
@@ -193,6 +202,7 @@ function createWindow() {
   mainWindow.on('close', (e) => {
     if (isQuitting) return;
     e.preventDefault();
+    // 询问：最小化到托盘（保持提醒）还是退出程序
     const buttons = ['最小化到托盘', '退出程序'];
     const choice = dialog.showMessageBoxSync(mainWindow, {
       type: 'question',
@@ -248,25 +258,43 @@ function showWindow() {
   mainWindow.focus();
 }
 
+// ---------- 应用菜单 ----------
+// 顶部菜单栏整体移除：不再有任何关于入口，版本与开发者信息见「设置 → 关于」
+
 // ---------- 生命周期 ----------
-app.whenReady().then(() => {
-  ensureDataDir();
-  registerIpc();
-  createWindow();
-  Menu.setApplicationMenu(null);
-  createTray();
+// 单实例锁：自启动/重复启动/新老版本并存时，聚焦已有窗口而不是再起一个驻留实例，
+// 避免“关掉一个窗口但托盘里还有别的进程（看起来退不掉）”的问题。
+if (!app.requestSingleInstanceLock()) {
+  app.quit();
+} else {
+  app.on('second-instance', () => showWindow());
 
-  const settings = readData('settings');
-  if (settings.autostart !== undefined) {
-    try { app.setLoginItemSettings({ openAtLogin: !!settings.autostart }); } catch (e) {}
-  }
+  app.whenReady().then(() => {
+    ensureDataDir();
+    registerIpc();
+    createWindow();
+    Menu.setApplicationMenu(null);
+    createTray();
 
-  reminderTimer = setInterval(checkReminders, 20000);
-  checkReminders();
+    // 应用自启设置对齐
+    const settings = readData('settings');
+    if (settings.autostart !== undefined) {
+      try { app.setLoginItemSettings({ openAtLogin: !!settings.autostart }); } catch (e) {}
+    }
 
-  app.on('activate', () => showWindow());
-});
+    reminderTimer = setInterval(checkReminders, 20000);
+    checkReminders();
 
-app.on('window-all-closed', (e) => {
-  // 保持托盘驻留
-});
+    app.on('activate', () => showWindow());
+  });
+
+  // 真正退出时清理定时器，确保进程完整结束
+  app.on('will-quit', () => {
+    if (reminderTimer) { clearInterval(reminderTimer); reminderTimer = null; }
+    if (tray) { tray.destroy(); tray = null; }
+  });
+
+  app.on('window-all-closed', (e) => {
+    // 保持托盘驻留
+  });
+}
