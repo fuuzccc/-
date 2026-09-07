@@ -38,7 +38,7 @@ const UI = {
   prioLabel(p) { return p === 'hi' ? '高' : p === 'mid' ? '中' : '低'; },
   // 关于对话框（头像 / GitHub / 开发者 / 版本）
   async showAbout() {
-    let ver = '1.0.1';
+    let ver = '1.0.2';
     try { ver = await window.futureMemo.getVersion(); } catch (e) {}
     const gh = 'fuuzccc';
     const avatar = 'https://avatars.githubusercontent.com/' + gh;

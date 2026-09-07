@@ -12,8 +12,20 @@ Views.calendar = (() => {
     return ['今天', '明天', '后天'][k] || '';
   }
 
+  // 一次性 日期→任务 索引：避免每月渲染时对每个格子全量遍历任务
+  function indexByDate(tasks) {
+    const m = new Map();
+    for (const t of tasks) {
+      if (!t.date) continue;
+      if (!m.has(t.date)) m.set(t.date, []);
+      m.get(t.date).push(t);
+    }
+    return m;
+  }
+
   function renderCal() {
     const p = Store.pad;
+    const byDate = indexByDate(Store.getTasks());
     const labelEl = document.getElementById('cal-label');
     labelEl.textContent = `${viewDate.getFullYear()} 年 ${viewDate.getMonth() + 1} 月`;
     document.getElementById('cal-sub').textContent = `点击日期查看，可拖动事项调整日期`;
@@ -24,19 +36,23 @@ Views.calendar = (() => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const grid = [];
     const today = Store.todayStr();
+    // 前置空格
     for (let i = 0; i < startDow; i++) grid.push({ other: -1 });
     for (let d = 1; d <= daysInMonth; d++) grid.push({ other: 0, day: d });
+    // 补足到整周
     while (grid.length % 7 !== 0) grid.push({ other: -2 });
 
     let html = `<div class="cal-dow">日</div><div class="cal-dow">一</div><div class="cal-dow">二</div><div class="cal-dow">三</div><div class="cal-dow">四</div><div class="cal-dow">五</div><div class="cal-dow">六</div>`;
 
+    const cells = document.createElement('div');
+    // 用字符串拼 cell
     let cellHtml = '';
     for (const c of grid) {
       if (c.other !== 0) { cellHtml += `<div class="cal-cell other"></div>`; continue; }
       const dateStr = `${year}-${p(month + 1)}-${p(c.day)}`;
-      const dayTasks = Store.getTasks().filter((t) => t.date === dateStr);
-      const overdueCount = dayTasks.filter((t) => !t.completed && dateStr < today).length;
-      const count = dayTasks.filter((t) => !t.completed).length;
+      const dayTasks = byDate.get(dateStr) || [];
+      let overdueCount = 0, count = 0;
+      for (const t of dayTasks) { if (!t.completed) { count++; if (dateStr < today) overdueCount++; } }
       const cls = ['cal-cell'];
       if (dateStr === today) cls.push('today');
       if (dateStr === selDate) cls.push('sel');
@@ -59,15 +75,32 @@ Views.calendar = (() => {
     html += cellHtml;
     const gridEl = document.getElementById('cal-grid');
     gridEl.innerHTML = html;
-    gridEl.querySelectorAll('.cal-cell[data-date]').forEach((cell) => {
-      cell.addEventListener('click', () => { selDate = cell.dataset.date; renderCal(); renderDay(); });
-      cell.addEventListener('dragover', (e) => { e.preventDefault(); });
-      cell.addEventListener('drop', (e) => {
+    // 事件委托：只在首次渲染时绑定一次，避免每次重建重复注册监听器
+    if (!gridEl._bound) {
+      gridEl._bound = true;
+      gridEl.addEventListener('click', (e) => {
+        const cell = e.target.closest('.cal-cell[data-date]');
+        if (!cell) return;
+        selDate = cell.dataset.date;
+        renderCal();
+        renderDay();
+      });
+      gridEl.addEventListener('dragover', (e) => {
+        const cell = e.target.closest('.cal-cell[data-date]');
+        if (cell) e.preventDefault();
+      });
+      gridEl.addEventListener('drop', (e) => {
+        const cell = e.target.closest('.cal-cell[data-date]');
+        if (!cell) return;
         e.preventDefault();
         const tid = e.dataTransfer.getData('text/plain');
-        if (tid) { Store.updateTask(tid, { date: cell.dataset.date }); renderCal(); renderDay(); }
+        if (tid) {
+          Store.updateTask(tid, { date: cell.dataset.date });
+          renderCal();
+          renderDay();
+        }
       });
-    });
+    }
   }
 
   function renderDay() {
@@ -108,6 +141,7 @@ Views.calendar = (() => {
         </div>`;
       }).join('');
     }
+    // 添加按钮
     const addBtn = document.createElement('button');
     addBtn.className = 'btn btn-sm';
     addBtn.textContent = '＋ 添加事项到该日';
@@ -127,6 +161,7 @@ Views.calendar = (() => {
       });
     });
 
+    // 预填新事项日期
     window.preFillDate = selDate;
   }
 

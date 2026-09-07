@@ -27,12 +27,22 @@ Views.dashboard = (() => {
 
     const tasks = Store.getTasks();
     const today = Store.todayStr();
-    const overdue = tasks.filter((t) => !t.completed && t.date && t.date < today);
-    const todayL = tasks.filter((t) => !t.completed && t.date === today);
+    // 单次遍历：同时统计逾期/今日，并按日期建立索引供未来 7 天查询
+    const byDate = new Map();
+    const overdue = [], todayL = [];
+    for (const t of tasks) {
+      if (t.completed) continue;
+      if (t.date && t.date < today) overdue.push(t);
+      else if (t.date === today) todayL.push(t);
+      if (t.date) {
+        if (!byDate.has(t.date)) byDate.set(t.date, []);
+        byDate.get(t.date).push(t);
+      }
+    }
     const next7 = [];
     for (let i = 1; i <= 7; i++) {
-      const d = Store.addDays(today, i);
-      tasks.filter((t) => !t.completed && t.date === d).forEach((t) => next7.push(t));
+      const list = byDate.get(Store.addDays(today, i));
+      if (list) next7.push(...list);
     }
     const upcoming = next7.sort((a, b) => a.date.localeCompare(b.date)).slice(0, 8);
 

@@ -1,4 +1,4 @@
-; 未来备忘录 安装脚本（UI 与本体浅色主题保持一致）
+﻿; 未来备忘录 安装脚本（UI 与本体浅色主题保持一致）
 Unicode true
 
 !include "MUI2.nsh"
@@ -7,7 +7,7 @@ Unicode true
 
 ; ---------- 常量 ----------
 !define PRODUCT_NAME "未来备忘录"
-!define PRODUCT_VERSION "1.0.1"
+!define PRODUCT_VERSION "1.0.2"
 !define PRODUCT_EXE "未来备忘录.exe"
 !define DEVELOPER  "fuuzccc"
 !define GITHUB     "github.com/fuuzccc"
@@ -17,7 +17,7 @@ Unicode true
 !endif
 
 Name "${PRODUCT_NAME}"
-OutFile "dist\未来备忘录安装包-${PRODUCT_VERSION}.exe"
+OutFile "未来备忘录安装包-${PRODUCT_VERSION}.exe"
 RequestExecutionLevel user
 InstallDir "$LOCALAPPDATA\Programs\${PRODUCT_NAME}"
 InstallDirRegKey HKCU "Software\${APP_ID}" "InstallLocation"
@@ -53,6 +53,7 @@ Page custom finishCreate finishLeave
 
 ; ---------- 欢迎页 ----------
 Function welcomeCreate
+  ; 记录勾选/回退需要，重新进入时清空
   nsDialogs::Create 1018
   Pop $0
   ${If} $0 == error
@@ -60,9 +61,11 @@ Function welcomeCreate
   ${EndIf}
   SetCtlColors $HWNDPARENT "${CLR_TEXT}" "${CLR_BG}"
 
+  ; 品牌标题
   ${NSD_CreateLabel} 12u 16u 100% 26u "${PRODUCT_NAME}"
   Pop $0
   SetCtlColors $0 "${CLR_PRIMARY}" "${CLR_BG}"
+  ; 需要大字重，通过默认字体放大：简单加粗标题下方占位
 
   ${NSD_CreateLabel} 12u 46u 100% 12u "v${PRODUCT_VERSION} · 清单 / 日历 / 目标 一体化规划工具"
   Pop $0

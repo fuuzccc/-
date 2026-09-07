@@ -4,8 +4,8 @@ Views.settings = (() => {
 
   async function render() {
     try { autostartOn = !!(await Store.api.getAutostart()); } catch (e) {}
-    let ver = '1.0.1';
-    try { ver = (await Store.api.getVersion()) || '1.0.1'; } catch (e) {}
+    let ver = '1.0.2';
+    try { ver = (await Store.api.getVersion()) || '1.0.2'; } catch (e) {}
     const gh = 'fuuzccc';
     const avatar = 'https://avatars.githubusercontent.com/' + gh;
     const s = Store.getSettings();

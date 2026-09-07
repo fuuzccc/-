@@ -98,11 +98,15 @@ Views.todo = (() => {
     renderFilters();
     const list = matching();
     const today = Store.todayStr();
-    const overdue = list.filter((t) => !t.completed && t.date && t.date < today);
-    const todayL = list.filter((t) => !t.completed && t.date && t.date === today);
-    const nordate = list.filter((t) => !t.completed && !t.date);
-    const future = list.filter((t) => !t.completed && t.date && t.date > today);
-    const done = list.filter((t) => t.completed);
+    // 单次遍历分桶，避免对同一结果集做多次全量过滤
+    const overdue = [], todayL = [], nordate = [], future = [], done = [];
+    for (const t of list) {
+      if (t.completed) { done.push(t); continue; }
+      if (!t.date) nordate.push(t);
+      else if (t.date < today) overdue.push(t);
+      else if (t.date === today) todayL.push(t);
+      else future.push(t);
+    }
 
     function section(label, items, countBadge) {
       if (!items.length) return '';

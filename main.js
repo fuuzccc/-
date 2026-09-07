@@ -70,7 +70,7 @@ function registerIpc() {
     try { return app.getLoginItemSettings().openAtLogin; } catch (e) { return false; }
   });
   ipcMain.handle('app:version', () => {
-    try { return app.getVersion(); } catch (e) { return '1.0.1'; }
+    try { return app.getVersion(); } catch (e) { return '1.0.2'; }
   });
   ipcMain.handle('app:export', async (e) => {
     const data = {
