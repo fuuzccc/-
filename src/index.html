@@ -62,6 +62,11 @@
           <div>
             <h1 class="view-title">日历</h1>
             <p class="view-sub" id="cal-sub"></p>
+            <div class="cal-legend">
+              <span class="lg-ex rest"></span>法定休息日
+              <span class="lg-ex work">班</span>调休上班
+              <span class="lg-ex lunar">初一</span>农历 · 节日 · 节气
+            </div>
           </div>
           <div class="cal-nav">
             <button class="btn" id="cal-prev">‹</button>
@@ -74,6 +79,7 @@
           <div class="cal-grid" id="cal-grid"></div>
           <div class="cal-side">
             <h3 id="cal-day-title">选择日期</h3>
+            <div id="cal-day-extra" class="cal-day-extra"></div>
             <div class="cal-day-list" id="cal-day-list"></div>
           </div>
         </div>
@@ -124,8 +130,10 @@
   <div id="modal-root"></div>
 
   <script src="theme.js"></script>
+  <script src="libs/lunar.js"></script>
   <script src="data.js"></script>
   <script src="app.js"></script>
+  <script src="cal-extra.js"></script>
   <script src="view.dashboard.js"></script>
   <script src="view.todo.js"></script>
   <script src="view.calendar.js"></script>
