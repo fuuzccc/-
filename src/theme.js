@@ -46,6 +46,8 @@ const Theme = (() => {
       '--primary': s.primary,
       '--primary-dark': darken(s.primary, 0.24),
       '--primary-soft': mix(s.primary, s.bg, 0.9),
+      // 浅色主题下用深色、深色主题下用浅色，保证 soft 底色上的文字始终可读
+      '--primary-soft-ink': lum(mix(s.primary, s.bg, 0.9)) > 0.55 ? darken(s.primary, 0.3) : lighten(s.primary, 0.3),
       '--on-primary': onColor(s.primary),
       '--danger': s.danger,
       '--danger-soft': mix(s.danger, s.bg, 0.9),
