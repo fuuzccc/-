@@ -24,16 +24,12 @@ Views.calendar = (() => {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const grid = [];
     const today = Store.todayStr();
-    // 前置空格
     for (let i = 0; i < startDow; i++) grid.push({ other: -1 });
     for (let d = 1; d <= daysInMonth; d++) grid.push({ other: 0, day: d });
-    // 补足到整周
     while (grid.length % 7 !== 0) grid.push({ other: -2 });
 
     let html = `<div class="cal-dow">日</div><div class="cal-dow">一</div><div class="cal-dow">二</div><div class="cal-dow">三</div><div class="cal-dow">四</div><div class="cal-dow">五</div><div class="cal-dow">六</div>`;
 
-    const cells = document.createElement('div');
-    // 用字符串拼 cell
     let cellHtml = '';
     for (const c of grid) {
       if (c.other !== 0) { cellHtml += `<div class="cal-cell other"></div>`; continue; }
@@ -44,8 +40,19 @@ Views.calendar = (() => {
       const cls = ['cal-cell'];
       if (dateStr === today) cls.push('today');
       if (dateStr === selDate) cls.push('sel');
+      // 农历 / 节日 / 节假日
+      let info = null;
+      try { info = window.CalExtra && window.CalExtra.cellLabel(year, month + 1, c.day); } catch (e) {}
+      const isWork = !!(window.CalExtra && window.CalExtra.isWorkDay(year, month + 1, c.day));
+      if (info && info.rest) cls.push('rest');
+      const labelCls = info && info.cls ? ` cal-lunar ${info.cls}` : ' cal-lunar';
+      const lunarHtml = info ? `<span class="${labelCls}">${UI.esc(info.text)}</span>` : '';
+      const workHtml = isWork ? '<span class="work-badge">班</span>' : '';
       cellHtml += `<div class="${cls.join(' ')}" data-date="${dateStr}">
-        <span class="cal-num">${c.day}</span>
+        <div class="cal-head">
+          <span class="cal-num">${c.day}</span>
+          <span class="cal-head-r">${lunarHtml}${workHtml}</span>
+        </div>
         <div class="cal-dots">${count ? `<span class="cal-dot">${count} 件</span>` : ''}${overdueCount ? `<span class="cal-dot" style="background:var(--danger);color:#fff">逾期</span>` : ''}</div>
       </div>`;
     }
@@ -69,6 +76,24 @@ Views.calendar = (() => {
     const p = Store.pad;
     const wd = ['日', '一', '二', '三', '四', '五', '六'][d.getDay()];
     title.textContent = `${p(d.getMonth() + 1)}月${p(d.getDate())}日 周${wd}`;
+    // 农历 / 节日 / 节假日详情
+    const detailEl = document.getElementById('cal-day-extra');
+    if (detailEl) {
+      let detail = null;
+      try { detail = window.CalExtra && window.CalExtra.dayDetail(d.getFullYear(), d.getMonth() + 1, d.getDate()); } catch (e) {}
+      if (detail) {
+        const parts = [];
+        if (detail.holiday) {
+          const tag = detail.holiday.isWork() ? '调休上班' : '法定休息日';
+          parts.push(`<span class="dx ${detail.holiday.isWork() ? 'work' : 'rest'}">${UI.esc(detail.holiday.getName())} · ${tag}</span>`);
+        }
+        if (detail.jieQi) parts.push(`<span class="dx jieqi">${UI.esc(detail.jieQi)}</span>`);
+        detail.fests.forEach((f) => parts.push(`<span class="dx fest">${UI.esc(f)}</span>`));
+        detailEl.innerHTML = `<div class="dx-lunar">${UI.esc(detail.lunarDate)}</div><div class="dx-tags">${parts.join('')}</div>`;
+      } else {
+        detailEl.innerHTML = '';
+      }
+    }
     const dayTasks = Store.getTasks().filter((t) => t.date === selDate);
     const list = document.getElementById('cal-day-list');
     if (!dayTasks.length) { list.innerHTML = `<div class="empty-line">该日没有事项，点击下方添加</div>`; }
@@ -83,7 +108,6 @@ Views.calendar = (() => {
         </div>`;
       }).join('');
     }
-    // 添加按钮
     const addBtn = document.createElement('button');
     addBtn.className = 'btn btn-sm';
     addBtn.textContent = '＋ 添加事项到该日';
@@ -103,7 +127,6 @@ Views.calendar = (() => {
       });
     });
 
-    // 预填新事项日期
     window.preFillDate = selDate;
   }
 
