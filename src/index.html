@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data: https://avatars.githubusercontent.com;" />
+  <title>未来备忘录</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="app">
+    <!-- 侧边导航 -->
+    <aside id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">未</div>
+        <div class="brand-text">
+          <div class="brand-name">未来备忘录</div>
+          <div class="brand-sub">清单 · 日历 · 目标</div>
+        </div>
+      </div>
+      <nav id="nav">
+        <button class="nav-item active" data-view="dashboard"><span class="nav-ico">▦</span>看板</button>
+        <button class="nav-item" data-view="todo"><span class="nav-ico">☑</span>清单</button>
+        <button class="nav-item" data-view="calendar"><span class="nav-ico">📅</span>日历</button>
+        <button class="nav-item" data-view="goals"><span class="nav-ico">🎯</span>目标</button>
+        <button class="nav-item" data-view="notes"><span class="nav-ico">📝</span>备忘录</button>
+      </nav>
+      <div class="sidebar-foot">
+        <button class="nav-item" data-view="settings"><span class="nav-ico">⚙</span>设置</button>
+      </div>
+    </aside>
+
+    <!-- 主内容 -->
+    <main id="content">
+      <!-- 看板 -->
+      <section id="view-dashboard" class="view active">
+        <header class="view-head">
+          <div>
+            <h1 class="view-title">看板</h1>
+            <p class="view-sub" id="dash-date"></p>
+          </div>
+          <button class="btn btn-primary" id="dash-quick-add">＋ 快速添加</button>
+        </header>
+        <div class="dash-grid" id="dash-grid"></div>
+      </section>
+
+      <!-- 清单 -->
+      <section id="view-todo" class="view">
+        <header class="view-head">
+          <div>
+            <h1 class="view-title">清单</h1>
+            <p class="view-sub">管理你所有待办事项</p>
+          </div>
+          <button class="btn btn-primary" id="todo-add-btn">＋ 新增事项</button>
+        </header>
+        <div class="filter-bar" id="todo-filters"></div>
+        <div class="todo-list" id="todo-list"></div>
+      </section>
+
+      <!-- 日历 -->
+      <section id="view-calendar" class="view">
+        <header class="view-head">
+          <div>
+            <h1 class="view-title">日历</h1>
+            <p class="view-sub" id="cal-sub"></p>
+          </div>
+          <div class="cal-nav">
+            <button class="btn" id="cal-prev">‹</button>
+            <span class="cal-month-label" id="cal-label"></span>
+            <button class="btn" id="cal-next">›</button>
+            <button class="btn" id="cal-today">今天</button>
+          </div>
+        </header>
+        <div class="cal-wrap">
+          <div class="cal-grid" id="cal-grid"></div>
+          <div class="cal-side">
+            <h3 id="cal-day-title">选择日期</h3>
+            <div class="cal-day-list" id="cal-day-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 目标 -->
+      <section id="view-goals" class="view">
+        <header class="view-head">
+          <div>
+            <h1 class="view-title">目标</h1>
+            <p class="view-sub">远期 · 中期 · 短期 分层文件夹目标</p>
+          </div>
+          <button class="btn btn-primary" id="goal-add-btn">＋ 新建目标</button>
+        </header>
+        <div class="goal-list" id="goal-list"></div>
+      </section>
+
+      <!-- 备忘录 -->
+      <section id="view-notes" class="view">
+        <header class="view-head">
+          <div>
+            <h1 class="view-title">备忘录</h1>
+            <p class="view-sub" id="notes-sub">管理你的灵感与笔记</p>
+          </div>
+          <button class="btn btn-primary" id="notes-add-btn">＋ 新建备忘录</button>
+        </header>
+        <div class="notes-tabs" id="notes-tabs"></div>
+        <div class="filter-bar">
+          <input class="search-input" id="notes-search" placeholder="搜索备忘录标题或标签..." style="width:320px"/>
+        </div>
+        <div id="notes-grid"></div>
+      </section>
+
+      <!-- 设置 -->
+      <section id="view-settings" class="view">
+        <header class="view-head">
+          <div>
+            <h1 class="view-title">设置</h1>
+            <p class="view-sub">自启动、提醒与数据管理</p>
+          </div>
+        </header>
+        <div class="settings-body" id="settings-body"></div>
+      </section>
+    </main>
+  </div>
+
+  <!-- 模态框容器 -->
+  <div id="modal-root"></div>
+
+  <script src="theme.js"></script>
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+  <script src="view.dashboard.js"></script>
+  <script src="view.todo.js"></script>
+  <script src="view.calendar.js"></script>
+  <script src="view.goals.js"></script>
+  <script src="view.flow.js"></script>
+  <script src="view.notes.js"></script>
+  <script src="view.settings.js"></script>
+</body>
+</html>

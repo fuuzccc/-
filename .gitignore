@@ -1,0 +1,14 @@
+node_modules/
+dist/
+*.log
+.superpowers/
+.trae/
+brainstorm/
+
+# 打包产物
+未来备忘录.exe
+未来备忘录安装包-*.exe
+
+# 系统文件
+Thumbs.db
+.DS_Store

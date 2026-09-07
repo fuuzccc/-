@@ -1,0 +1,41 @@
+{
+  "name": "future-memo",
+  "version": "1.0.1",
+  "description": "未来备忘录：清单 + 日历 + 目标的桌面规划备忘录",
+  "main": "main.js",
+  "author": "FutureMemo",
+  "license": "MIT",
+  "repository": "local/future-memo",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.futurememo.app",
+    "productName": "未来备忘录",
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**/*",
+      "assets/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "icon": "assets/icon.png",
+      "target": [
+        {
+          "target": "dir"
+        },
+        {
+          "target": "portable"
+        }
+      ]
+    }
+  }
+}
