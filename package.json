@@ -17,6 +17,7 @@
   "build": {
     "appId": "com.futurememo.app",
     "productName": "未来备忘录",
+    "publish": null,
     "files": [
       "main.js",
       "preload.js",
