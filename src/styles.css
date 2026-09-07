@@ -1,4 +1,5 @@
 :root {
+  /* 可自定义色槽（主题面板可改） */
   --bg: #f5f6fa;
   --card: #ffffff;
   --border: #e3e6ee;
@@ -9,6 +10,7 @@
   --warn: #e8a13a;
   --ok: #2fae6b;
 
+  /* 派生色（由 theme.js 依据色槽自动计算） */
   --primary-dark: #1159c7;
   --primary-soft: #dce7fa;
   --on-primary: #ffffff;
@@ -118,17 +120,42 @@ body {
 .tc-desc { font-size: 12px; color: var(--text-mut); margin-top: 3px; }
 .tc-actions { display: flex; gap: 4px; flex: none; }
 
+/* ---------- 日历 ---------- */
 .cal-wrap { display: grid; grid-template-columns: 2.1fr 1fr; gap: 18px; }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .cal-dow { text-align: center; font-size: 12px; color: var(--text-mut); font-weight: 700; padding: 6px 0; }
-.cal-cell { min-height: 74px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px; cursor: pointer; position: relative; display: flex; flex-direction: column; }
+.cal-cell { min-height: 74px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 6px; cursor: pointer; position: relative; display: flex; flex-direction: column; gap: 4px; overflow: hidden; }
 .cal-cell:hover { border-color: var(--primary); }
 .cal-cell.other { opacity: .4; }
 .cal-cell.today { border: 2px solid var(--primary); }
 .cal-cell.sel { background: var(--primary-soft); border-color: var(--primary); }
+.cal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; }
+.cal-head-r { display: flex; align-items: center; gap: 4px; min-width: 0; }
 .cal-num { font-size: 12px; font-weight: 700; color: var(--text-mut); }
+.cal-lunar { font-size: 10px; color: var(--text-mut); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 92px; }
+.cal-lunar.fest { color: var(--primary); font-weight: 600; }
+.cal-lunar.solar { color: var(--ok); font-weight: 600; }
+.cal-lunar.holiday { color: var(--danger); font-weight: 700; }
+.cal-cell.rest { background: var(--danger-soft); }
+.cal-cell.rest .cal-num { color: var(--danger); }
+.work-badge { font-size: 10px; line-height: 1; color: #fff; background: var(--danger); border-radius: 4px; padding: 2px 4px; flex: none; }
 .cal-dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
 .cal-dot { font-size: 10px; background: var(--danger-soft); color: var(--danger); padding: 1px 6px; border-radius: 20px; }
+/* 法定节假日图例 */
+.cal-legend { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--text-mut); flex-wrap: wrap; }
+.cal-legend .lg-ex { display: inline-flex; align-items: center; justify-content: center; font-size: 9px; border-radius: 4px; height: 15px; padding: 0 4px; }
+.cal-legend .lg-ex.rest { width: 15px; border-radius: 50%; background: var(--danger-soft); }
+.cal-legend .lg-ex.work { background: var(--danger); color: #fff; }
+.cal-legend .lg-ex.lunar { background: var(--bg-mut); color: var(--text-mut); }
+/* 右侧详情：农历与节假日 */
+.cal-day-extra { margin: 8px 0 12px; padding: 10px 12px; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 10px; }
+.cal-day-extra .dx-lunar { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+.cal-day-extra .dx-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.cal-day-extra .dx { font-size: 11px; padding: 2px 8px; border-radius: 20px; }
+.cal-day-extra .dx.rest { background: var(--danger-soft); color: var(--danger); }
+.cal-day-extra .dx.work { background: var(--primary-soft); color: var(--primary-dark); }
+.cal-day-extra .dx.jieqi { background: var(--ok-soft); color: var(--ok); }
+.cal-day-extra .dx.fest { background: var(--primary-soft); color: var(--primary); }
 .cal-day-list { display: flex; flex-direction: column; gap: 8px; }
 .cal-item { display: flex; align-items: center; gap: 9px; padding: 9px 11px; border: 1px solid var(--border); border-radius: 10px; background: var(--card); }
 .cal-item.draggable { cursor: grab; }
